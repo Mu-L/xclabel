@@ -277,8 +277,16 @@ class VideoAnnotationTask:
 
 
 
-# 使用当前工作目录作为基础目录
-BASE_PATH = os.getcwd()
+# 是否为 PyInstaller 打包后的运行环境
+FROZEN = getattr(sys, 'frozen', False)
+
+# 资源路径解析：打包后从 _MEIPASS（临时解压目录）读取只读资源，源码运行时用脚本目录
+def resource_path(rel):
+    base = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
+    return os.path.join(base, rel)
+
+# 可写数据目录：打包后放在 exe 所在目录（数据可持久化），源码运行时用当前工作目录
+BASE_PATH = os.path.dirname(sys.executable) if FROZEN else os.getcwd()
 UPLOAD_FOLDER = os.path.join(BASE_PATH, 'uploads', 'samples')
 STATIC_FOLDER = os.path.join(BASE_PATH, 'static')
 ANNOTATIONS_FOLDER = os.path.join(BASE_PATH, 'uploads', 'annotations')
@@ -345,13 +353,8 @@ def get_files():
             'error': 'Invalid path'
         }), 400
     
-    # 构建完整路径
-    # 确保uploads目录存在
-    if not os.path.exists('uploads'):
-        os.makedirs('uploads', exist_ok=True)
-    
-    # 优先使用当前工作目录下的uploads目录
-    base_path = os.getcwd()
+    # 构建完整路径，统一使用 BASE_PATH（打包后为 exe 所在目录）
+    base_path = BASE_PATH
     full_path = os.path.join(base_path, path)
     
     # 检查路径是否存在
@@ -582,7 +585,7 @@ def delete_files():
                 continue
             
             # 构建完整路径
-            full_path = os.path.join(app.root_path, file_path)
+            full_path = os.path.join(BASE_PATH, file_path)
             
             # 检查文件是否存在
             if not os.path.exists(full_path):
@@ -651,7 +654,7 @@ def create_folder():
     
     try:
         # 构建完整的文件夹路径
-        full_path = os.path.join(app.root_path, path, folder_name)
+        full_path = os.path.join(BASE_PATH, path, folder_name)
         
         # 检查文件夹是否已存在
         if os.path.exists(full_path):
@@ -697,7 +700,7 @@ def upload_files():
             }), 400
         
         # 构建上传目录路径
-        upload_dir = os.path.join(app.root_path, path)
+        upload_dir = os.path.join(BASE_PATH, path)
         
         # 确保上传目录存在
         os.makedirs(upload_dir, exist_ok=True)
@@ -770,7 +773,7 @@ def upload_video_for_label():
             }), 400
         
         # 构建上传目录路径
-        upload_dir = os.path.join(app.root_path, 'uploads', 'auto', 'video')
+        upload_dir = os.path.join(BASE_PATH, 'uploads', 'auto', 'video')
         
         # 确保上传目录存在
         os.makedirs(upload_dir, exist_ok=True)
@@ -830,12 +833,12 @@ def download_files():
                         continue
                     
                     # 构建完整的文件路径
-                    full_path = os.path.join(app.root_path, file_path)
-                    
+                    full_path = os.path.join(BASE_PATH, file_path)
+
                     # 检查文件是否存在且是文件
                     if os.path.exists(full_path) and os.path.isfile(full_path):
-                        # 获取相对路径（相对于app.root_path）
-                        rel_path = os.path.relpath(full_path, app.root_path)
+                        # 获取相对路径（相对于数据根目录）
+                        rel_path = os.path.relpath(full_path, BASE_PATH)
                         # 获取文件名
                         file_name = os.path.basename(full_path)
                         # 添加文件到tar，使用文件名作为内部名称
@@ -1294,12 +1297,16 @@ def upload_video():
         return jsonify({'error': 'No video file selected'}), 400
     
     try:
-        # 保存视频文件到临时位置
-        temp_video_path = os.path.join(app.config['UPLOAD_FOLDER'], 'temp_' + (video_file.filename or 'video'))
+        # 保存视频文件到临时位置（使用固定 ASCII 文件名，避免 Windows 下 OpenCV 无法打开非 ASCII 路径）
+        original_filename = video_file.filename or 'video'
+        _, ext = os.path.splitext(original_filename)
+        if not ext:
+            ext = '.mp4'
+        temp_video_path = os.path.join(app.config['UPLOAD_FOLDER'], 'temp_video_input' + ext)
         video_file.save(temp_video_path)
-        
+
         # 抽帧处理，传递原始文件名
-        extracted_frames = extract_frames(temp_video_path, frame_interval, video_file.filename)
+        extracted_frames = extract_frames(temp_video_path, frame_interval, original_filename)
         
         # 删除临时视频文件
         os.remove(temp_video_path)
@@ -1338,10 +1345,13 @@ def extract_frames(video_path, frame_interval, original_filename=None):
             # 生成文件名
             frame_filename = f"{video_name}_frame_{saved_frame_count:06d}.jpg"
             frame_path = os.path.join(app.config['UPLOAD_FOLDER'], frame_filename)
-            
-            # 保存帧为图片
-            cv2.imwrite(frame_path, frame)
-            extracted_frames.append(frame_filename)
+
+            # 保存帧为图片（用 imencode + 二进制写入，兼容 Windows 下非 ASCII 文件名）
+            ok, buf = cv2.imencode('.jpg', frame)
+            if ok:
+                with open(frame_path, 'wb') as f:
+                    f.write(buf.tobytes())
+                extracted_frames.append(frame_filename)
             saved_frame_count += 1
             
         frame_count += 1
@@ -3108,9 +3118,14 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='xclabel')
     parser.add_argument('--host', type=str, default='0.0.0.0', help='绑定的IP地址，默认0.0.0.0')
     parser.add_argument('--port', type=int, default=9924, help='绑定的端口，默认9924')
-    parser.add_argument('--debug', action='store_true', default=True, help='启用调试模式，默认开启')
+    parser.add_argument('--debug', action='store_true', default=False, help='启用调试模式，默认关闭')
     args = parser.parse_args()
-    
+
+    # 打包/正式运行时自动打开默认浏览器（调试模式不开，避免干扰开发）
+    if not args.debug:
+        import webbrowser
+        threading.Timer(1.5, lambda: webbrowser.open(f'http://127.0.0.1:{args.port}')).start()
+
     # 使用SocketIO运行应用，使用命令行参数
     socketio.run(app, debug=args.debug, host=args.host, port=args.port, allow_unsafe_werkzeug=True)
 

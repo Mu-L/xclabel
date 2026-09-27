@@ -57,4 +57,4 @@
 ## v1.0
 - 发布时间：2025/02/17
 - 基础图像标注功能（矩形、多边形），Python + Django
-- v1.0 分支：https://gitee.com/Vanishi/xclabel/tree/v1.0
+- v1.0 分支：https://gitee.com/yuturuishi/xclabel/tree/v1.0

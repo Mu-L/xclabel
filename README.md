@@ -1,69 +1,92 @@
-## xclabel
-* 作者：北小菜
-* 作者主页：https://www.yuturuishi.com
-* gitee开源地址：https://gitee.com/Vanishi/xclabel
-* github开源地址：https://github.com/beixiaocai/xclabel
+# xclabel
 
-### 软件介绍
-xclabel是一款开源图像标注与模型训练工具，采用Python+Flask开发，跨平台支持Windows/Linux/Mac。
+**语言 / Language：** [简体中文](README.md) | [English](README_en.md)
 
-### 软件截图
-<img width="720" alt="1" src="https://raw.giteeusercontent.com/Vanishi/images/raw/master/xclabel/v3.0/1.png">
-<img width="720" alt="2" src="https://raw.giteeusercontent.com/Vanishi/images/raw/master/xclabel/v3.0/2.png">
-<img width="720" alt="3" src="https://raw.giteeusercontent.com/Vanishi/images/raw/master/xclabel/v3.0/3.png">
-<img width="720" alt="4" src="https://raw.giteeusercontent.com/Vanishi/images/raw/master/xclabel/v3.0/4.png">
-<img width="720" alt="5" src="https://raw.giteeusercontent.com/Vanishi/images/raw/master/xclabel/v3.0/5.png">
-<img width="720" alt="6" src="https://raw.giteeusercontent.com/Vanishi/images/raw/master/xclabel/v3.0/6.png">
+**开源协议：** MIT License，可自由商用。详见 `LICENSE`。
 
+- 官网：https://www.yuturuishi.com
+- 微信：yuturuishi
+- gitee开源地址：https://gitee.com/yuturuishi/xclabel
+- github开源地址：https://github.com/beixiaocai/xclabel
 
+- xclabel 是一款开源图像标注与模型训练工具，采用 Python + Flask 开发，跨平台支持 Windows / Linux / Mac。支持多种标注类型、AI 自动标注与 YOLO 模型训练全流程。
 
-**核心功能：**
-- 多种标注类型（矩形、多边形等），支持图片、视频、LabelMe数据集导入
-- AI自动标注，支持大模型（LMStudio、vLLM、ollama、阿里云）对图片和视频自动标注
-- YOLO模型训练全流程：数据集上传、模型训练、断点恢复、模型测试、参数查看与下载
-- YOLO格式数据集导出，可自定义训练/验证/测试比例
-- 内置文件管理系统，支持文件浏览、上传、下载
-- 全部静态资源本地化，支持离线部署
+---
 
-### 使用说明
+## 功能
 
-1. **安装依赖**：
+- 标注：多种标注类型（矩形、多边形等），支持图片、视频、LabelMe 数据集导入
+- AI 自动标注：支持大模型（LMStudio、vLLM、ollama、阿里云）对图片和视频自动标注
+- 模型训练：YOLO 训练全流程——数据集上传、模型训练、断点恢复、模型测试、参数查看与下载
+- 数据集：YOLO 格式数据集导出，可自定义训练 / 验证 / 测试比例
+- 文件管理：内置文件管理系统，支持文件浏览、上传、下载
+- 部署：全部静态资源本地化，支持离线部署
+
+---
+
+## 软件截图
+
+<img width="720" alt="1" src="https://raw.giteeusercontent.com/yuturuishi/images/raw/master/xclabel/v3.0/1.png">
+<img width="720" alt="2" src="https://raw.giteeusercontent.com/yuturuishi/images/raw/master/xclabel/v3.0/2.png">
+<img width="720" alt="3" src="https://raw.giteeusercontent.com/yuturuishi/images/raw/master/xclabel/v3.0/3.png">
+<img width="720" alt="4" src="https://raw.giteeusercontent.com/yuturuishi/images/raw/master/xclabel/v3.0/4.png">
+<img width="720" alt="5" src="https://raw.giteeusercontent.com/yuturuishi/images/raw/master/xclabel/v3.0/5.png">
+<img width="720" alt="6" src="https://raw.giteeusercontent.com/yuturuishi/images/raw/master/xclabel/v3.0/6.png">
+
+---
+
+## 环境要求
+
+- Python 3.8+
+- 依赖见 `requirements.txt`
+- 训练功能需安装 Ultralytics / PyTorch（CPU 或 CUDA 版）
+- 现代浏览器（前端访问）
+
+---
+
+## 快速开始
+
+```bash
+# 创建并激活虚拟环境
+python -m venv venv
+# Windows
+venv\Scripts\activate
+# Linux / Mac
+source venv/bin/activate
+
+# 安装基础依赖
+pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
+```
+
+启动服务：
+
+```bash
+python app.py --host 0.0.0.0 --port 9924
+```
+
+浏览器访问 `http://127.0.0.1:9924`。
+
+---
+
+## 使用说明
+
+1. **安装依赖**：见上方「快速开始」。训练功能需额外安装：
    ```bash
-   python -m venv venv
-   
-   # Windows
-   venv\Scripts\activate
-   
-   # Linux/Mac
-   source venv/bin/activate
-   
-   pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
-   
-   # 如需训练功能
-   
-   # 安装yolo11的ultralytics依赖库
    pip install ultralytics==8.3.1 -i https://pypi.tuna.tsinghua.edu.cn/simple
-   pip install numpy==1.26.4 -i https://pypi.tuna.tsinghua.edu.cn/simple 
-   
-   # 安装cpu版torch依赖库
+   pip install numpy==1.26.4 -i https://pypi.tuna.tsinghua.edu.cn/simple
+   # CPU 版 torch
    pip install torch==2.1.2 torchvision==0.16.2 -i https://pypi.tuna.tsinghua.edu.cn/simple
-   
-   # 安装cuda版torch依赖库
+   # CUDA 版 torch
    pip install torch==2.1.0 torchaudio==2.1.0 torchvision==0.16.0 --index-url https://download.pytorch.org/whl/cu121
-   
-
    ```
-
-2. **启动服务**：
-   ```bash
-   python app.py --host 0.0.0.0 --port 9924
-   ```
-
+2. **启动服务**：`python app.py --host 0.0.0.0 --port 9924`
 3. **访问服务**：浏览器打开 http://127.0.0.1:9924
+4. **模型训练**：访问 http://127.0.0.1:9924/training ，上传数据集 → 选择模型 → 开始训练 → 测试 / 下载模型
 
-4. **模型训练**：访问 http://127.0.0.1:9924/training ，上传数据集→选择模型→开始训练→测试/下载模型
+---
 
-### 项目结构
+## 项目结构
+
 ```
 xclabel/
 ├── app.py                    # 主应用文件
@@ -85,15 +108,27 @@ xclabel/
 └── tmp/                      # 训练临时文件（运行时自动创建）
 ```
 
-### 快捷键
+---
+
+## 快捷键
+
 - **Ctrl+S**：保存标注
 - **Ctrl+Shift+D**：清除标注
 
-### 技术栈
+---
+
+## 技术栈
+
 Flask + Flask-SocketIO | HTML/CSS/JS | OpenCV/PIL | Ultralytics YOLO11 | Socket.IO
 
-### 版本历史
+---
+
+## 版本历史
+
 查看完整更新记录：[CHANGELOG.md](CHANGELOG.md)
 
-### 授权协议
-本项目自有代码使用MIT协议，保留版权信息即可自由使用。使用第三方库请遵循其各自授权协议。
+---
+
+## 授权协议
+
+本项目自有代码使用 MIT 协议，保留版权信息即可自由使用。使用第三方库请遵循其各自授权协议。
