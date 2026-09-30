@@ -1,4 +1,4 @@
-# xclabel
+# ytlabel
 
 **语言 / Language：** [简体中文](README.md) | [English](README_en.md)
 
@@ -6,10 +6,10 @@
 
 - 官网：https://www.yuturuishi.com
 - 微信：yuturuishi
-- gitee开源地址：https://gitee.com/yuturuishi/xclabel
-- github开源地址：https://github.com/beixiaocai/xclabel
+- gitee开源地址：https://gitee.com/yuturuishi/ytlabel
+- github开源地址：https://github.com/yuturuishi/ytlabel
 
-- xclabel 是一款开源图像标注与模型训练工具，采用 Python + Flask 开发，跨平台支持 Windows / Linux / Mac。支持多种标注类型、AI 自动标注与 YOLO 模型训练全流程。
+- ytlabel 是一款开源图像标注与模型训练工具，采用 Python + Flask 开发，跨平台支持 Windows / Linux / Mac。支持多种标注类型、AI 自动标注与 YOLO 模型训练全流程。
 
 ---
 
@@ -88,7 +88,7 @@ python app.py --host 0.0.0.0 --port 9924
 ## 项目结构
 
 ```
-xclabel/
+ytlabel/
 ├── app.py                    # 主应用文件
 ├── AiUtils.py                # AI自动标注工具类
 ├── requirements.txt          # 依赖列表

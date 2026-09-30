@@ -1,4 +1,4 @@
-# xclabel
+# ytlabel
 
 **Language / 语言：** [简体中文](README.md) | [English](README_en.md)
 
@@ -6,10 +6,10 @@
 
 - Website: https://www.yuturuishi.com
 - WeChat: yuturuishi
-- Gitee: https://gitee.com/yuturuishi/xclabel
-- GitHub: https://github.com/beixiaocai/xclabel
+- Gitee: https://gitee.com/yuturuishi/ytlabel
+- GitHub: https://github.com/yuturuishi/ytlabel
 
-- xclabel is an open-source image annotation and model training tool built with Python + Flask, cross-platform on Windows / Linux / Mac. It supports multiple annotation types, AI-assisted auto-labeling, and the full YOLO training pipeline.
+- ytlabel is an open-source image annotation and model training tool built with Python + Flask, cross-platform on Windows / Linux / Mac. It supports multiple annotation types, AI-assisted auto-labeling, and the full YOLO training pipeline.
 
 ---
 
@@ -88,7 +88,7 @@ Open `http://127.0.0.1:9924` in your browser.
 ## Project Structure
 
 ```
-xclabel/
+ytlabel/
 ├── app.py                    # Main application
 ├── AiUtils.py                # AI auto-labeling utility class
 ├── requirements.txt          # Dependency list
